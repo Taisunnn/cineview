@@ -4,18 +4,31 @@ services:
   db:
     image: mysql:8
     environment:
-      MYSQL_DATABASE: testdb
-      MYSQL_USER: tyson
-      MYSQL_PASSWORD: root
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - '3305:3306'
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 5
   app:
     build:
       context: .
       dockerfile: Dockerfile
     command: ["debug"]
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_PORT: ${MYSQL_PORT}
     volumes:
-      - ./app:/usr/app
+      - ./app:/src/app
     ports:
       - '5001:5000'
+    depends_on:
+      db:
+        condition: service_healthy
