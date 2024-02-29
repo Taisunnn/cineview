@@ -25,6 +25,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_PORT: ${MYSQL_PORT}
+      SECRET_KEY: ${SECRET_KEY}
     volumes:
       - ./app:/src/app
     ports:

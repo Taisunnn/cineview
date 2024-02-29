@@ -1,17 +1,16 @@
-import sqlalchemy as sa
-from sqlalchemy.dialects import mysql
+from sqlalchemy import Column, Integer, String
 
 from app.core.database import Base
 
 class Users(Base):
     __tablename__ = "Users"
-    user_id = sa.Column(
+    user_id = Column(
         "user_id",
-        sa.Integer(),
+        Integer(),
         nullable=False,
         primary_key=True
     )
-    first_name = sa.Column("first_name", sa.String(), nullable=False)
-    last_name = sa.Column("last_name", sa.String(), nullable=False)
-    age = sa.Column("age", sa.Integer(), nullable=False)
-    gender = sa.Column("gender", sa.String(), nullable=False)
+    first_name = Column("first_name", String(), nullable=False)
+    last_name = Column("last_name", String(), nullable=False)
+    age = Column("age", Integer(), nullable=False)
+    gender = Column("gender", String(), nullable=False)
