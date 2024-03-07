@@ -4,8 +4,8 @@ ENV PORT=5000
 
 WORKDIR /src
 
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+COPY requirements_app.txt requirements_app.txt
+RUN pip install -r requirements_app.txt
 
 COPY docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh

@@ -3,7 +3,9 @@ from sqlalchemy import Column, Integer, String
 from app.core.database import Base
 
 class Users(Base):
+
     __tablename__ = "Users"
+
     user_id = Column(
         "user_id",
         Integer(),

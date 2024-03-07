@@ -1,0 +1,9 @@
+FROM python:3.11
+
+WORKDIR /root
+ENV AIRFLOW_HOME=/root/airflow
+
+COPY requirements_airflow.txt .
+COPY constraints.txt .
+
+RUN pip install -r requirements_airflow.txt --constraint constraints.txt

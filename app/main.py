@@ -1,5 +1,3 @@
-import time
-
 from fastapi import FastAPI, Request
 from app.core.middleware import log_request_time
 
