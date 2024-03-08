@@ -19,8 +19,7 @@ def extract_titles(titles_list: list) -> list:
 
 def transform_titles(combined: list) -> pd.DataFrame:
     COLUMNS = ["title", "score", "synopsis", "episodes"]
-    titles_df = pd.DataFrame(combined)
-    titles_df = titles_df[COLUMNS]
+    titles_df = pd.DataFrame(combined)[COLUMNS].rename(columns={"title": "title_name"})
 
     return titles_df
 
@@ -34,7 +33,7 @@ def load_titles(filtered_titles: pd.DataFrame) -> None:
     filtered_titles.to_sql(
     name=conn.schema,
     con=engine,
-    if_exists="replace",
+    if_exists="append",
     index=False,
     )
 

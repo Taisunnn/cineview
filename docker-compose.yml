@@ -5,6 +5,7 @@ x-mysql-env: &mysql_env
   MYSQL_USER: ${MYSQL_USER}
   MYSQL_PASSWORD: ${MYSQL_PASSWORD}
   MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+  MYSQL_HOST: ${MYSQL_HOST}
 
 x-common-airflow: &airflow_common
     build:

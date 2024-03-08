@@ -40,7 +40,7 @@ def create_access_token(username: str, login_id: int, expires_delta: timedelta):
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
     try:
-        payload = jwt.decode(token, Settings.SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(token, Settings.SECRET_KEY, algorithms=[Settings.ALGORITHM])
         username: str = payload.get('sub')
         login_id: int = payload.get('id')
         if username is None or login_id is None:
@@ -65,8 +65,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
                                  db=Depends(get_db)):
     user = await authenticate_user(form_data.username, form_data.password, db)
     if not user:
-        raise 
-    
+        raise exceptions.get_unauthorized_exception()
     token = create_access_token(user.username, user.login_id, timedelta(minutes=20))
 
     return {"access_token": token, "token_type": "bearer"}

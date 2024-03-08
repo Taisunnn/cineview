@@ -1,8 +1,7 @@
 from fastapi import FastAPI, Request
 from app.core.middleware import log_request_time
 
-from app.api import users
-from app.api import auth
+import app.api as v1
 
 app = FastAPI()
 
@@ -12,5 +11,4 @@ app.middleware("http")(log_request_time)
 async def healthcheck():
     return {"status": "healthy"}
 
-app.include_router(auth.router, tags=["auth"], prefix="/auth")
-app.include_router(users.router, tags=["users"], prefix="/user")
+app.include_router(v1.router)
