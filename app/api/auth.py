@@ -1,9 +1,8 @@
 from datetime import timedelta, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
 from sqlalchemy import select
 from passlib.context import CryptContext
 from jose import jwt, JWTError
@@ -40,9 +39,11 @@ def create_access_token(username: str, login_id: int, expires_delta: timedelta):
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
     try:
-        payload = jwt.decode(token, Settings.SECRET_KEY, algorithms=[Settings.ALGORITHM])
-        username: str = payload.get('sub')
-        login_id: int = payload.get('id')
+        payload = jwt.decode(
+            token, Settings.SECRET_KEY, algorithms=[Settings.ALGORITHM]
+        )
+        username: str = payload.get("sub")
+        login_id: int = payload.get("id")
         if username is None or login_id is None:
             raise exceptions.get_unauthorized_exception()
         return {"username": username, "id": login_id}
@@ -51,18 +52,21 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_user(create_user_request: schemas.CreateUserRequest, db=Depends(get_db)):
+async def create_user(
+    create_user_request: schemas.CreateUserRequest, db=Depends(get_db)
+):
     create_user_model = models.Login(
         username=create_user_request.username,
-        hashed_password=pwd_context.hash(create_user_request.password)
+        hashed_password=pwd_context.hash(create_user_request.password),
     )
     db.add(create_user_model)
     await db.commit()
 
 
 @router.post("/token", response_model=schemas.Token)
-async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-                                 db=Depends(get_db)):
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db=Depends(get_db)
+):
     user = await authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise exceptions.get_unauthorized_exception()

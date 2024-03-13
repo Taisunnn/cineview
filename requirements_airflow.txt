@@ -9,6 +9,7 @@ apache-airflow-providers-common-sql==1.11.0
 apache-airflow-providers-ftp==3.7.0
 apache-airflow-providers-http==4.9.1
 apache-airflow-providers-imap==3.5.0
+apache-airflow-providers-mysql==5.5.4
 apache-airflow-providers-sqlite==3.7.1
 apispec==6.4.0
 argcomplete==3.2.2
@@ -82,6 +83,8 @@ mdit-py-plugins==0.4.0
 mdurl==0.1.2
 more-itertools==10.2.0
 multidict==6.0.5
+mysql-connector-python==8.3.0
+mysqlclient==2.2.4
 numpy==1.26.4
 opentelemetry-api==1.23.0
 opentelemetry-exporter-otlp==1.23.0
@@ -151,5 +154,3 @@ wrapt==1.16.0
 WTForms==3.1.2
 yarl==1.9.4
 zipp==3.17.0
-apache-airflow-providers-mysql
-mysql-connector-python

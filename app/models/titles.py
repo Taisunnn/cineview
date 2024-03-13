@@ -2,8 +2,9 @@ from sqlalchemy import Column, Integer, String, Float
 
 from app.core.database import Base
 
+
 class Titles(Base):
-    
+
     __tablename__ = "titles"
 
     title_id = Column("title_id", Integer(), primary_key=True)

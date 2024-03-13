@@ -48,6 +48,7 @@ services:
       SECRET_KEY: ${SECRET_KEY}
     volumes:
       - ./app:/src/app
+      - ./tests:/src/tests
     ports:
       - '5001:5000'
     depends_on:

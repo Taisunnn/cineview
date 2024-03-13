@@ -15,7 +15,7 @@ from movies.movie_pipeline import movie_pipeline
 default_args = {
     "owner": "Tyson",
     "depends_on_past": False,
-    "retries": 1,
+    "retries": 0,
     "retry_delay": timedelta(minutes=1),
 }
 
@@ -28,7 +28,7 @@ with DAG(
     tags=["movies"],
 ) as dag:
 
-    grab_data = PythonOperator(
+    extract_movie_titles = PythonOperator(
         task_id="extract_movie_titles",
         python_callable=movie_pipeline,
         op_kwargs={"titles_list": ["Naruto", "Bleach"]},

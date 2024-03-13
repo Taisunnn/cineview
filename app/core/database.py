@@ -3,19 +3,18 @@ from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     AsyncAttrs,
-    create_async_engine
+    create_async_engine,
 )
 from sqlalchemy.schema import MetaData
 
 from app.core.settings import settings
 
-async_engine: AsyncEngine = create_async_engine(
-    settings.DATABASE_URI,
-    future=True
-)
+async_engine: AsyncEngine = create_async_engine(settings.DATABASE_URI, future=True)
+
 
 class Base(AsyncAttrs, DeclarativeBase):
     pass
+
 
 meta_data = MetaData()
 
@@ -24,8 +23,9 @@ SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     expire_on_commit=True,
-    class_=AsyncSession
+    class_=AsyncSession,
 )
+
 
 async def get_db() -> AsyncSession:
     db = SessionLocal()

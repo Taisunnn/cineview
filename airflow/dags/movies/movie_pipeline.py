@@ -3,11 +3,14 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 from airflow.hooks.base import BaseHook
+from airflow.providers.mysql.hooks.mysql import MySqlHook
+
 
 def get_titles(title: str) -> dict:
     response = requests.get(f"https://api.jikan.moe/v4/anime?q={title}&sfw")
-    
+
     return response.json()
+
 
 def extract_titles(titles_list: list) -> list:
     combined = []
@@ -17,27 +20,38 @@ def extract_titles(titles_list: list) -> list:
 
     return combined
 
+
 def transform_titles(combined: list) -> pd.DataFrame:
     COLUMNS = ["title", "score", "synopsis", "episodes"]
     titles_df = pd.DataFrame(combined)[COLUMNS].rename(columns={"title": "title_name"})
 
     return titles_df
 
+
 def load_titles(filtered_titles: pd.DataFrame) -> None:
 
-    AIRFLOW_CONN_ID = "movies"
+    airflow_conn_id = "mysql_movie_default_db"
+    table = "titles"
 
-    conn = BaseHook.get_connection(AIRFLOW_CONN_ID)
-    engine = create_engine(f"mysql+pymysql://{conn.login}:{conn.password}@{conn.host}:{conn.port}/{AIRFLOW_CONN_ID}")
+    # Using Basehook
+    conn = BaseHook.get_connection(airflow_conn_id)
+    engine = create_engine(
+        f"mysql+pymysql://{conn.login}:{conn.password}@{conn.host}:{conn.port}/{conn.schema}"
+    )
+
+    # Using MySqlHook
+    # mysql_hook = MySqlHook(mysql_conn_id=airflow_conn_id)
+    # engine = mysql_hook.get_sqlalchemy_engine({"echo": True})
 
     filtered_titles.to_sql(
-    name=conn.schema,
-    con=engine,
-    if_exists="append",
-    index=False,
+        name=table,
+        con=engine,
+        if_exists="append",
+        index=False,
     )
+
 
 def movie_pipeline(titles_list: list) -> None:
     titles = extract_titles(titles_list)
     clean_data = transform_titles(titles)
-    _          = load_titles(clean_data)
+    _ = load_titles(clean_data)
