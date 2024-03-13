@@ -7,7 +7,9 @@ class Titles(Base):
 
     __tablename__ = "titles"
 
-    title_id = Column("title_id", Integer(), primary_key=True)
+    title_id = Column(
+        "title_id", Integer(), primary_key=True, autoincrement=True, index=True
+    )
     title_name = Column("title_name", String())
     score = Column("score", Float())
     synopsis = Column("synopsis", String())

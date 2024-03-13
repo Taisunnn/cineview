@@ -1,0 +1,10 @@
+FROM python:3.11
+
+WORKDIR /src
+
+RUN pip install alembic mysqlclient
+
+COPY alembic /src/alembic
+COPY alembic.ini /src/alembic.ini
+
+CMD ["alembic", "upgrade", "head"]

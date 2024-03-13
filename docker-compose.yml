@@ -1,11 +1,19 @@
 version: "3.8"
 
-x-mysql-env: &mysql_env
-  MYSQL_DATABASE: ${MYSQL_DATABASE}
-  MYSQL_USER: ${MYSQL_USER}
-  MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-  MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-  MYSQL_HOST: ${MYSQL_HOST}
+x-mysql-airflow-env: &mysql_airflow_env
+  MYSQL_DATABASE: ${MYSQL_AIRFLOW_DATABASE}
+  MYSQL_USER: ${MYSQL_AIRFLOW_USER}
+  MYSQL_PASSWORD: ${MYSQL_AIRFLOW_PASSWORD}
+  MYSQL_ROOT_PASSWORD: ${MYSQL_AIRFLOW_PASSWORD}
+  MYSQL_HOST: ${MYSQL_AIRFLOW_HOST}
+
+x-mysql-app-env: &mysql_app_env
+  MYSQL_DATABASE: ${MYSQL_APP_DATABASE}
+  MYSQL_USER: ${MYSQL_APP_USER}
+  MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD}
+  MYSQL_ROOT_PASSWORD: ${MYSQL_APP_PASSWORD}
+  MYSQL_HOST: ${MYSQL_APP_HOST}
+  MYSQL_PORT: ${MYSQL_APP_PORT}
 
 x-common-airflow: &airflow_common
     build:
@@ -14,28 +22,48 @@ x-common-airflow: &airflow_common
     volumes:
       - "./airflow/dags:/root/airflow/dags"
     environment:
-      <<: *mysql_env
+      <<: *mysql_airflow_env
       AIRFLOW__CORE__EXECUTOR: "LocalExecutor"
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "mysql+pymysql://${MYSQL_AIRFLOW_USER}:${MYSQL_AIRFLOW_PASSWORD}@${MYSQL_AIRFLOW_HOST}:${MYSQL_AIRFLOW_PORT}/${MYSQL_AIRFLOW_DATABASE}"
       AIRFLOW__CORE__PARALLELISM: 2
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__DAG_DIR_LIST_INTERVAL: 15
       AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
     depends_on:
-      db:
+      airflow-db:
         condition: service_healthy
 
 services:
-  db:
+  airflow-db:
     image: mysql:8
     environment:
-      << : *mysql_env
+      << : *mysql_airflow_env
+    ports:
+      - '3307:3306'
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 5
+  
+  app-db:
+    image: mysql:8
+    environment:
+      << : *mysql_app_env
     ports:
       - '3305:3306'
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 10s
       retries: 5
+  
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.alembic
+    environment: *mysql_app_env
+    depends_on:
+      app-db:
+        condition: service_healthy
 
   app:
     build:
@@ -43,8 +71,7 @@ services:
       dockerfile: Dockerfile.app
     command: ["debug"]
     environment:
-      << : *mysql_env
-      MYSQL_PORT: ${MYSQL_PORT}
+      << : *mysql_app_env
       SECRET_KEY: ${SECRET_KEY}
     volumes:
       - ./app:/src/app
@@ -52,7 +79,7 @@ services:
     ports:
       - '5001:5000'
     depends_on:
-      db:
+      app-db:
         condition: service_healthy
 
   airflow-init:
