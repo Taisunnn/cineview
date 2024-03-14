@@ -60,7 +60,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.alembic
-    environment: *mysql_app_env
+    environment: 
+      << : *mysql_app_env
     depends_on:
       app-db:
         condition: service_healthy

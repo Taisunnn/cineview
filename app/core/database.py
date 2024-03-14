@@ -6,10 +6,19 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.schema import MetaData
+from sqlalchemy.pool import NullPool
 
 from app.core.settings import settings
 
-async_engine: AsyncEngine = create_async_engine(settings.DATABASE_URI, future=True)
+async_engine: AsyncEngine = create_async_engine(
+    settings.DATABASE_URI,
+    future=True,
+    **(
+        {"poolclass": NullPool}
+        if settings.IS_TEST_ENVIRONMENT
+        else {"pool_size": 20, "max_overflow": 30}
+    )
+)
 
 
 class Base(AsyncAttrs, DeclarativeBase):

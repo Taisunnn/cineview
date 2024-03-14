@@ -7,6 +7,7 @@ class Settings:
     )
     SECRET_KEY: str = os.getenv("SECRET_KEY")
     ALGORITHM = "HS256"
+    IS_TEST_ENVIRONMENT: bool = os.environ.get("TEST", False)
 
 
 settings = Settings()

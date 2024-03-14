@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 
@@ -18,8 +19,10 @@ router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
+db_dependency = Annotated[Session, Depends(get_db)]
 
-async def authenticate_user(username: str, password: str, db=Depends(get_db)):
+
+async def authenticate_user(username: str, password: str, db: db_dependency):
     record = select(models.Login).where(models.Login.username == username)
     result = await db.execute(record)
     user = result.scalar_one_or_none()
@@ -53,7 +56,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_user(
-    create_user_request: schemas.CreateUserRequest, db=Depends(get_db)
+    create_user_request: schemas.CreateUserRequest, db: db_dependency
 ):
     create_user_model = models.Login(
         username=create_user_request.username,
@@ -65,7 +68,7 @@ async def create_user(
 
 @router.post("/token", response_model=schemas.Token)
 async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db=Depends(get_db)
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency
 ):
     user = await authenticate_user(form_data.username, form_data.password, db)
     if not user:

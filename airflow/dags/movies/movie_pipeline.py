@@ -29,8 +29,7 @@ def transform_titles(combined: list) -> pd.DataFrame:
 
 
 def load_titles(filtered_titles: pd.DataFrame) -> None:
-
-    airflow_conn_id = "mysql_apifun_db"
+    airflow_conn_id = "mysql_apifun"
     table = "titles"
 
     # Using Basehook

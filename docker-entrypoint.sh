@@ -7,9 +7,6 @@ case "$1" in
     debug)
         exec uvicorn app.main:app --host 0.0.0.0 --port $PORT --reload
         ;;
-    test)
-        pytest -W ignore::DeprecationWarning
-        ;;
     *)
         exec "$@"
         ;;

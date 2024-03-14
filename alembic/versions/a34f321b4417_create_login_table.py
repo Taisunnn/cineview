@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a34f321b4417'
+revision = "a34f321b4417"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -19,9 +19,11 @@ depends_on = None
 def upgrade() -> None:
     op.create_table(
         "Login",
-        sa.Column("login_id", sa.Integer(), primary_key=True, index=True, autoincrement=True),
+        sa.Column(
+            "login_id", sa.Integer(), primary_key=True, index=True, autoincrement=True
+        ),
         sa.Column("username", sa.String(15), unique=True),
-        sa.Column("hashed_password", sa.String(255))
+        sa.Column("hashed_password", sa.String(255)),
     )
 
 

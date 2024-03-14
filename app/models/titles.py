@@ -4,7 +4,6 @@ from app.core.database import Base
 
 
 class Titles(Base):
-
     __tablename__ = "titles"
 
     title_id = Column(

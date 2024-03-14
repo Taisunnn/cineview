@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import select, func
+from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.api.auth import get_current_user
@@ -11,10 +12,12 @@ import app.models as models
 
 router = APIRouter()
 
+db_dependency = Annotated[Session, Depends(get_db)]
+
 
 @router.get("/")
 async def read_titles(
-    current_user: Annotated[dict, Depends(get_current_user)], db=Depends(get_db)
+    current_user: Annotated[dict, Depends(get_current_user)], db: db_dependency
 ):
     titles = await db.execute(select(models.Titles))
     return titles.scalars().all()
@@ -24,7 +27,7 @@ async def read_titles(
 async def get_title(
     title_id: int,
     current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
+    db: db_dependency,
 ):
     title = (
         await db.execute(
@@ -40,7 +43,7 @@ async def get_title(
 async def get_title_name(
     title_name: str,
     current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
+    db: db_dependency,
 ):
     title = (
         await db.execute(

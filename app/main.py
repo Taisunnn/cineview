@@ -1,7 +1,8 @@
 from fastapi import FastAPI
-from app.core.middleware import log_request_time
 
+from app.core.middleware import log_request_time
 import app.api as v1
+
 
 app = FastAPI()
 

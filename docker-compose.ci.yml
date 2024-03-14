@@ -1,0 +1,52 @@
+version: "3.8"
+
+x-mysql-app-env: &mysql_app_env
+  MYSQL_DATABASE: ${MYSQL_APP_DATABASE}
+  MYSQL_USER: ${MYSQL_APP_USER}
+  MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD}
+  MYSQL_ROOT_PASSWORD: ${MYSQL_APP_PASSWORD}
+  MYSQL_HOST: ${MYSQL_APP_HOST}
+  MYSQL_PORT: ${MYSQL_APP_PORT}
+
+services:
+
+  app-db:
+    image: mysql:8
+    environment:
+      << : *mysql_app_env
+    ports:
+      - '3305:3306'
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 5
+  
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.alembic
+    environment: 
+      << : *mysql_app_env
+    depends_on:
+      app-db:
+        condition: service_healthy
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    command: ["pytest", "-v", "-W ignore::DeprecationWarning"]
+    environment:
+      << : *mysql_app_env
+      SECRET_KEY: ${SECRET_KEY}
+      TEST: 1
+    volumes:
+      - ./app:/src/app
+      - ./tests:/src/tests
+    ports:
+      - '5001:5000'
+    depends_on:
+      app-db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully

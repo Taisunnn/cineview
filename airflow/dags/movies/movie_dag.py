@@ -27,7 +27,6 @@ with DAG(
     catchup=False,
     tags=["movies"],
 ) as dag:
-
     extract_movie_titles = PythonOperator(
         task_id="extract_movie_titles",
         python_callable=movie_pipeline,
